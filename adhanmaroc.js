@@ -1,5 +1,5 @@
 const https = require('https');
-const cheerio = require('cheerio');
+const HtmlTableToJson = require('html-table-to-json');
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -7,11 +7,14 @@ var jsonTables = {};
 const options = {
   rejectUnauthorized: false
 };
-const HtmlTableToJson = require('html-table-to-json');
 
+app.use((_req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  next();
+});
 
 // Define the API endpoint
-app.get('/api/city', (req, res) => {
+app.get('/api/:city?', (req, res) => {
   const city = req.query.city;
   const url = 'https://habous.gov.ma/prieres/horaire_hijri_2.php?ville=' + city; // Replace with the URL of the HTML page
 
@@ -23,21 +26,31 @@ app.get('/api/city', (req, res) => {
     });
 
     response.on('end', () => {
-      //const $ = cheerio.load(data);
       const html = data;
 
       jsonTables = new HtmlTableToJson(html);
-
-      console.log(jsonTables['results']);
+      res.setHeader('Content-Type', 'application/json');
+      res.json(jsonTables['results']);
     });
   });
 
-  // Perform any necessary operations with the city parameter
-  // For demonstration purposes, we'll simply return it as a JSON response
-  res.json(jsonTables);
+
 });
+
+app.get('/api/', (req, res) => {
+
+  res.sendFile(__dirname + "/public/index.html");
+})
+
+app.get('*', (req, res) => {
+  res.send("Coming Soon")
+})
+
+
 
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+
