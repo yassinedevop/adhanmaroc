@@ -13,9 +13,10 @@ app.use((_req, res, next) => {
   next();
 });
 
+
 // Define the API endpoint
-app.get('/api/:city?', (req, res) => {
-  const city = req.query.city;
+app.get('/api/city/:id?', (req, res) => {
+  const city = req.params.id;
   const url = 'https://habous.gov.ma/prieres/horaire_hijri_2.php?ville=' + city; // Replace with the URL of the HTML page
 
   https.get(url, options, (response) => {
@@ -37,20 +38,19 @@ app.get('/api/:city?', (req, res) => {
 
 });
 
-app.get('/api/', (req, res) => {
 
-  res.sendFile(__dirname + "/public/index.html");
-})
-
-app.get('*', (req, res) => {
-  res.send("Coming Soon")
-})
-
+app.get('/api/cities', (req, res) => {
+  // send the file cities.json
+  res.setHeader('Content-Type', 'application/json');
+  res.sendFile(__dirname + "/cities.json");
+});
 
 
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+
+
 });
 
 
